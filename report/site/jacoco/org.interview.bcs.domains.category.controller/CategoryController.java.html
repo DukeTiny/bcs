@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">org.interview.bcs.domains.category.controller</a> &gt; <span class="el_source">CategoryController.java</span></div><h1>CategoryController.java</h1><pre class="source lang-java linenums">package org.interview.bcs.domains.category.controller;
+
+import org.interview.bcs.api.base.BaseResp;
+import org.interview.bcs.api.domains.category.req.DeleteCategoryReq;
+import org.interview.bcs.api.domains.category.req.GetCategoryReq;
+import org.interview.bcs.api.domains.category.req.UpsertCategoryReq;
+import org.interview.bcs.api.domains.category.resp.GetCategoryResp;
+import org.interview.bcs.api.domains.category.resp.UpsertCategoryResp;
+import org.interview.bcs.domains.category.service.CategoryService;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+
+/**
+ * @author: wanghu
+ * @since: 2025/5/16 19:15
+ */
+@RestController
+@RequestMapping(&quot;/bcs&quot;)
+<span class="fc" id="L20">public class CategoryController {</span>
+
+    @Resource
+    private CategoryService categoryService;
+
+    /**
+     * 获取分类
+     */
+    @GetMapping(&quot;/category/get&quot;)
+    public GetCategoryResp getCategories( @RequestParam(required = false) Long categoryId ) {
+<span class="fc" id="L30">        GetCategoryReq req = new GetCategoryReq();</span>
+<span class="fc" id="L31">        req.setCategoryId( categoryId );</span>
+<span class="fc" id="L32">        return categoryService.getCategories( req );</span>
+    }
+
+
+    /**
+     * 插入或更新分类
+     */
+    @PostMapping(&quot;/category/upsert&quot;)
+    public UpsertCategoryResp upsertCategory( @RequestBody UpsertCategoryReq upsertCategoryReq ) {
+<span class="fc" id="L41">        return categoryService.upsertCategory( upsertCategoryReq );</span>
+    }
+
+
+    /**
+     * 删除分类
+     */
+    @DeleteMapping(&quot;/category/delete&quot;)
+    public BaseResp deleteCategory( @RequestBody DeleteCategoryReq deleteCategoryReq ) {
+<span class="fc" id="L50">        return categoryService.deleteCategory( deleteCategoryReq );</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">org.interview.bcs.common</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package org.interview.bcs.common;
+
+import lombok.extern.slf4j.Slf4j;
+import org.interview.bcs.api.base.BaseResp;
+import org.interview.bcs.api.constant.RespCode;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Objects;
+
+
+@RestControllerAdvice
+<span class="fc" id="L28">@Slf4j</span>
+<span class="fc" id="L29">public class GlobalExceptionHandler {</span>
+
+
+    @ExceptionHandler({Exception.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResp bizExceptionHandler( HttpServletRequest request, HttpServletResponse response, Exception e ) {
+<span class="nc" id="L35">        printErrorMsg( request, e );</span>
+<span class="nc" id="L36">        return BaseResp.fail( getCode( e ), getErrorMsg( e ) );</span>
+    }
+
+
+    private void printErrorMsg( HttpServletRequest request, Exception e ) {
+<span class="nc" id="L41">        log.error( &quot;Request[{}] error.&quot;, request.getRequestURI(), e );</span>
+<span class="nc" id="L42">    }</span>
+
+
+    private String getErrorMsg( Exception e ) {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if ( e instanceof MethodArgumentNotValidException ) {</span>
+<span class="nc" id="L47">            return doGetErrorMsg( ( ( MethodArgumentNotValidException ) e ).getBindingResult().getAllErrors() );</span>
+        }
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        else if ( e instanceof BindException ) {</span>
+<span class="nc" id="L50">            return doGetErrorMsg( ( ( BindException ) e ).getBindingResult().getAllErrors() );</span>
+        }
+<span class="nc" id="L52">        return getErrorDetail( e );</span>
+    }
+
+    private String doGetErrorMsg( List&lt;ObjectError&gt; allErrors ) {
+<span class="nc" id="L56">        Objects.requireNonNull( allErrors );</span>
+<span class="nc" id="L57">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        for ( ObjectError error : allErrors ) {</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            if ( error instanceof FieldError ) {</span>
+<span class="nc" id="L60">                sb.append( &quot;[&quot; ).append( ( ( FieldError ) error ).getField() ).append( error.getDefaultMessage() ).append( &quot;]&quot; );</span>
+            }
+            else {
+<span class="nc" id="L63">                sb.append( &quot;[&quot; ).append( error.getObjectName() ).append( error.getDefaultMessage() ).append( &quot;]&quot; );</span>
+            }
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">        return sb.toString();</span>
+    }
+
+    private static String getErrorDetail( Throwable e ) {
+<span class="nc" id="L70">        String errorMsg = &quot;&quot;;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if ( e != null ) {</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            while ( e.getCause() != null ) {</span>
+<span class="nc" id="L73">                e = e.getCause();</span>
+            }
+<span class="nc" id="L75">            errorMsg = e.getMessage();</span>
+        }
+<span class="nc" id="L77">        return errorMsg;</span>
+    }
+
+    private static String getCode( Exception e ) {
+<span class="nc" id="L81">        String code = &quot;&quot;;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if ( e instanceof BizException ) {</span>
+<span class="nc" id="L83">            code = ( ( BizException ) e ).getCode();</span>
+        }
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        return StringUtils.hasText( code ) ? code : RespCode.FAIL;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

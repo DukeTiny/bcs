@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthorServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">org.interview.bcs.domains.author.service.impl</a> &gt; <span class="el_source">AuthorServiceImpl.java</span></div><h1>AuthorServiceImpl.java</h1><pre class="source lang-java linenums">package org.interview.bcs.domains.author.service.impl;
+
+import org.interview.bcs.api.base.BaseResp;
+import org.interview.bcs.api.base.PageVo;
+import org.interview.bcs.api.domains.author.req.DeleteAuthorReq;
+import org.interview.bcs.api.domains.author.req.GetAuthorReq;
+import org.interview.bcs.api.domains.author.req.UpsertAuthorReq;
+import org.interview.bcs.api.domains.author.resp.GetAuthorResp;
+import org.interview.bcs.api.domains.author.resp.UpsertAuthorResp;
+import org.interview.bcs.api.domains.author.vo.AuthorVo;
+import org.interview.bcs.common.*;
+import org.interview.bcs.domains.author.entities.Author;
+import org.interview.bcs.domains.author.mappers.AuthorMapper;
+import org.interview.bcs.domains.author.service.AuthorService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Objects;
+
+/**
+ * @author: wanghu
+ * @since: 2025/5/15 14:43
+ */
+@Service
+<span class="fc" id="L27">public class AuthorServiceImpl implements AuthorService {</span>
+
+    @Resource
+    private AuthorMapper authorMapper;
+
+    @Override
+    public GetAuthorResp getAuthors( GetAuthorReq req ) {
+
+        // 可以通过切面来完成
+<span class="fc" id="L36">        ValidationUtils.validate( req );</span>
+
+<span class="fc" id="L38">        Long authorId = req.getAuthorId();</span>
+<span class="fc" id="L39">        GetAuthorResp resp = new GetAuthorResp();</span>
+
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if ( Objects.nonNull( authorId ) ) {</span>
+<span class="fc" id="L42">            Author author = authorMapper.selectByPrimaryKey( req.getAuthorId() );</span>
+<span class="fc" id="L43">            resp.setAuthors( new ArrayList&lt;&gt;() );</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if ( Objects.nonNull( author ) ) {</span>
+<span class="fc" id="L45">                resp.setTotals( 1 );</span>
+<span class="fc" id="L46">                resp.setPages( 1 );</span>
+<span class="fc" id="L47">                resp.getAuthors().add( authorToAuthorVo( author ) );</span>
+            }
+<span class="fc" id="L49">            return resp;</span>
+        }
+
+<span class="fc" id="L52">        PageVo&lt;AuthorVo&gt; pageVo = PageUtils.query(</span>
+<span class="fc" id="L53">                req, r -&gt; authorMapper.getAuthorsByName( r.getAuthorName() ),</span>
+                this::authorToAuthorVo
+        );
+<span class="fc" id="L56">        resp.convert( pageVo, resp::setAuthors );</span>
+<span class="fc" id="L57">        return resp;</span>
+    }
+
+    @Override
+    @Transactional
+    public UpsertAuthorResp upsertAuthor( UpsertAuthorReq req ) {
+        // 可以通过切面来完成
+<span class="fc" id="L64">        ValidationUtils.validate( req );</span>
+
+
+        // 业务验证
+<span class="fc" id="L68">        bizValidate( req );</span>
+
+<span class="fc" id="L70">        Long authorId = req.getAuthorId();</span>
+
+<span class="fc" id="L72">        Author authorPo = new Author();</span>
+<span class="fc" id="L73">        BeanCopy.copy( req, authorPo );</span>
+<span class="fc" id="L74">        authorPo.setName( req.getAuthorName() );</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if ( Objects.nonNull( authorId ) ) {</span>
+<span class="fc" id="L76">            authorMapper.updateByPrimaryKeySelective( authorPo );</span>
+        }
+        else {
+<span class="fc" id="L79">            authorMapper.insertSelective( authorPo );</span>
+<span class="fc" id="L80">            authorId = authorPo.getAuthorId();</span>
+        }
+
+<span class="fc" id="L83">        return UpsertAuthorResp.builder().authorId( authorId ).build();</span>
+    }
+
+    private void bizValidate( UpsertAuthorReq req ) {
+<span class="fc" id="L87">        final Long authorId = req.getAuthorId();</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if ( Objects.nonNull( authorId ) ) {</span>
+<span class="fc" id="L89">            Author author = authorMapper.selectByPrimaryKey( authorId );</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            if ( Objects.isNull( author ) ) {</span>
+<span class="fc" id="L91">                throw new BizException( String.format( &quot;Author[%d] not found!&quot;, authorId ) );</span>
+            }
+        }
+<span class="fc" id="L94">    }</span>
+
+    @Override
+    @Transactional
+    public BaseResp deleteAuthor( DeleteAuthorReq req ) {
+        // 可以通过切面来完成
+<span class="fc" id="L100">        ValidationUtils.validate( req );</span>
+
+<span class="fc" id="L102">        Author author = new Author();</span>
+<span class="fc" id="L103">        author.setAuthorId( req.getAuthorId() );</span>
+<span class="fc" id="L104">        author.setDisable( true );</span>
+<span class="fc" id="L105">        int effectRows = authorMapper.updateByPrimaryKeySelective( author );</span>
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if ( effectRows &lt; 1 ) {</span>
+<span class="fc" id="L108">            throw new BizException( String.format( &quot;Author[%d] not found!&quot;, req.getAuthorId() ) );</span>
+        }
+
+<span class="fc" id="L111">        return BaseResp.success();</span>
+    }
+
+    private AuthorVo authorToAuthorVo( Author author ) {
+<span class="fc" id="L115">        AuthorVo authorVo = new AuthorVo();</span>
+<span class="fc" id="L116">        BeanCopy.copy( author, authorVo );</span>
+<span class="fc" id="L117">        authorVo.setAuthorName( author.getName() );</span>
+<span class="fc" id="L118">        return authorVo;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

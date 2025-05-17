@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">org.interview.bcs.domains.book.controller</a> &gt; <span class="el_source">BookController.java</span></div><h1>BookController.java</h1><pre class="source lang-java linenums">package org.interview.bcs.domains.book.controller;
+
+import org.interview.bcs.api.base.BaseResp;
+import org.interview.bcs.api.constant.BookStatusEnum;
+import org.interview.bcs.api.domains.book.req.DeleteBookReq;
+import org.interview.bcs.api.domains.book.req.GetBookReq;
+import org.interview.bcs.api.domains.book.req.UpsertBookReq;
+import org.interview.bcs.api.domains.book.resp.GetBookResp;
+import org.interview.bcs.api.domains.book.resp.UpsertBookResp;
+import org.interview.bcs.domains.book.service.BookService;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Objects;
+
+/**
+ * @author: wanghu
+ * @since: 2025/5/15 09:42
+ */
+@RestController
+@RequestMapping(&quot;/bcs&quot;)
+<span class="fc" id="L22">public class BookController {</span>
+
+    @Resource
+    private BookService bookService;
+
+    /**
+     * 查找图书
+     */
+    @GetMapping(&quot;/book/get&quot;)
+    public GetBookResp getBooks(
+            @RequestParam(required = false) String isbn, @RequestParam(required = false) String title,
+            @RequestParam(required = false) String authorName, @RequestParam(required = false) Integer bookStatus,
+            @RequestParam(required = false) Integer pageCurrent, @RequestParam(required = false) Integer pageSize
+    ) {
+<span class="fc" id="L36">        GetBookReq req = new GetBookReq();</span>
+<span class="fc" id="L37">        req.setIsbn( isbn );</span>
+<span class="fc" id="L38">        req.setTitle( title );</span>
+<span class="fc" id="L39">        req.setAuthorName( authorName );</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if ( Objects.nonNull( bookStatus ) ) {</span>
+<span class="fc" id="L41">            req.setBookStatus( BookStatusEnum.of( bookStatus ) );</span>
+        }
+
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if ( Objects.nonNull( pageCurrent ) ) {</span>
+<span class="nc" id="L45">            req.setPageCurrent( pageCurrent );</span>
+        }
+
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if ( Objects.nonNull( pageSize ) ) {</span>
+<span class="nc" id="L49">            req.setPageSize( pageSize );</span>
+        }
+
+<span class="fc" id="L52">        return bookService.getBooks( req );</span>
+    }
+
+
+    /**
+     * 添加或更新图书
+     */
+    @PostMapping(&quot;/book/upsert&quot;)
+    public UpsertBookResp upsertBook( @RequestBody UpsertBookReq req ) {
+<span class="fc" id="L61">        return bookService.upsertBook( req );</span>
+    }
+
+
+    /**
+     * 删除图书
+     */
+    @DeleteMapping(&quot;/book/delete&quot;)
+    public BaseResp deleteBook( @RequestBody DeleteBookReq req ) {
+<span class="fc" id="L70">        return bookService.deleteBook( req );</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

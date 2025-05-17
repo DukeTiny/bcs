@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.interview.bcs.domains.author.mappers.AuthorMapper">
+  <resultMap id="BaseResultMap" type="org.interview.bcs.domains.author.entities.Author">
+    <id column="author_id" jdbcType="BIGINT" property="authorId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="nationality" jdbcType="VARCHAR" property="nationality" />
+    <result column="birth_date" jdbcType="DATE" property="birthDate" />
+    <result column="death_date" jdbcType="DATE" property="deathDate" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="disable" jdbcType="BIT" property="disable" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    author_id, `name`, nationality, birth_date, death_date, create_time, update_time, 
+    `disable`, remark
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from author
+    where author_id = #{authorId,jdbcType=BIGINT} and disable = FALSE
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from author
+    where author_id = #{authorId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="author_id" keyProperty="authorId" parameterType="org.interview.bcs.domains.author.entities.Author" useGeneratedKeys="true">
+    insert into author (`name`, nationality, birth_date,
+      death_date, create_time, update_time, 
+      `disable`, remark)
+    values (#{name,jdbcType=VARCHAR}, #{nationality,jdbcType=VARCHAR}, #{birthDate,jdbcType=DATE}, 
+      #{deathDate,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{disable,jdbcType=BIT}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="author_id" keyProperty="authorId" parameterType="org.interview.bcs.domains.author.entities.Author" useGeneratedKeys="true">
+    insert into author
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="nationality != null">
+        nationality,
+      </if>
+      <if test="birthDate != null">
+        birth_date,
+      </if>
+      <if test="deathDate != null">
+        death_date,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="disable != null">
+        `disable`,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nationality != null">
+        #{nationality,jdbcType=VARCHAR},
+      </if>
+      <if test="birthDate != null">
+        #{birthDate,jdbcType=DATE},
+      </if>
+      <if test="deathDate != null">
+        #{deathDate,jdbcType=DATE},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="disable != null">
+        #{disable,jdbcType=BIT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.interview.bcs.domains.author.entities.Author">
+    update author
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nationality != null">
+        nationality = #{nationality,jdbcType=VARCHAR},
+      </if>
+      <if test="birthDate != null">
+        birth_date = #{birthDate,jdbcType=DATE},
+      </if>
+      <if test="deathDate != null">
+        death_date = #{deathDate,jdbcType=DATE},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="disable != null">
+        `disable` = #{disable,jdbcType=BIT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where author_id = #{authorId,jdbcType=BIGINT} and disable = false
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.interview.bcs.domains.author.entities.Author">
+    update author
+    set `name` = #{name,jdbcType=VARCHAR},
+      nationality = #{nationality,jdbcType=VARCHAR},
+      birth_date = #{birthDate,jdbcType=DATE},
+      death_date = #{deathDate,jdbcType=DATE},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      `disable` = #{disable,jdbcType=BIT},
+      remark = #{remark,jdbcType=VARCHAR}
+    where author_id = #{authorId,jdbcType=BIGINT} and disable = false
+  </update>
+
+  <select id="getAuthorsByName" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM author
+    <where>
+      <if test="name!=null and name!=''">
+        and name LIKE CONCAT(#{name},'%')
+      </if>
+      <if test="true">
+        and disable = false
+      </if>
+    </where>
+
+  </select>
+</mapper>

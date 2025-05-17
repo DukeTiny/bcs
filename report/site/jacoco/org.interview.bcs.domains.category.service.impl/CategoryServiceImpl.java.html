@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoryServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">org.interview.bcs.domains.category.service.impl</a> &gt; <span class="el_source">CategoryServiceImpl.java</span></div><h1>CategoryServiceImpl.java</h1><pre class="source lang-java linenums">package org.interview.bcs.domains.category.service.impl;
+
+import com.google.common.collect.Lists;
+import org.interview.bcs.api.base.BaseResp;
+import org.interview.bcs.api.domains.category.req.DeleteCategoryReq;
+import org.interview.bcs.api.domains.category.req.GetCategoryReq;
+import org.interview.bcs.api.domains.category.req.UpsertCategoryReq;
+import org.interview.bcs.api.domains.category.resp.GetCategoryResp;
+import org.interview.bcs.api.domains.category.resp.UpsertCategoryResp;
+import org.interview.bcs.api.domains.category.vo.CategoryVo;
+import org.interview.bcs.common.BeanCopy;
+import org.interview.bcs.common.BizException;
+import org.interview.bcs.common.ValidationUtils;
+import org.interview.bcs.domains.category.cache.CategoryCache;
+import org.interview.bcs.domains.category.cache.CategoryChangedEvent;
+import org.interview.bcs.domains.category.entites.Category;
+import org.interview.bcs.domains.category.mappers.CategoryMapper;
+import org.interview.bcs.domains.category.service.CategoryService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.interview.bcs.api.constant.Constants.ROOT_CATEGORY_ID;
+
+/**
+ * @author: wanghu
+ * @since: 2025/5/16 15:57
+ */
+@Service
+<span class="fc" id="L34">public class CategoryServiceImpl implements CategoryService {</span>
+
+
+    @Resource
+    private CategoryMapper categoryMapper;
+
+    @Resource
+    private ApplicationEventPublisher applicationEventPublisher;
+
+
+    @Override
+    public GetCategoryResp getCategories( GetCategoryReq req ) {
+        // 可以切面完成
+<span class="fc" id="L47">        ValidationUtils.validate( req );</span>
+
+<span class="fc" id="L49">        Long categoryId = req.getCategoryId();</span>
+
+        // 查找某个分类及子分类
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if ( Objects.nonNull( categoryId ) ) {</span>
+<span class="fc" id="L53">            GetCategoryResp resp = new GetCategoryResp();</span>
+<span class="fc" id="L54">            resp.setCategories( new ArrayList&lt;&gt;() );</span>
+<span class="fc" id="L55">            Category category = CategoryCache.getCategory( categoryId );</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            if ( Objects.nonNull( category ) ) {</span>
+<span class="fc" id="L57">                CategoryVo categoryVo = categoryToCategoryVo( category );</span>
+<span class="fc" id="L58">                resp.setCategories( Lists.newArrayList( categoryVo ) );</span>
+<span class="fc" id="L59">                fillChildrenCategories( resp.getCategories() );</span>
+            }
+<span class="fc" id="L61">            return resp;</span>
+        }
+        // 获取所有分裂
+<span class="fc" id="L64">        return getAllCategories();</span>
+    }
+
+    @Override
+    public UpsertCategoryResp upsertCategory( UpsertCategoryReq req ) {
+        // 可以切面
+<span class="fc" id="L70">        ValidationUtils.validate( req );</span>
+
+        // 业务相关校验
+<span class="fc" id="L73">        bizValidate( req );</span>
+
+<span class="fc" id="L75">        Long categoryId = req.getCategoryId();</span>
+<span class="fc" id="L76">        Category category = new Category();</span>
+<span class="fc" id="L77">        BeanCopy.copy( req, category );</span>
+<span class="fc" id="L78">        category.setName( req.getCategoryName() );</span>
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if ( Objects.nonNull( categoryId ) ) {  // update</span>
+<span class="fc" id="L81">            categoryMapper.updateByPrimaryKeySelective( category );</span>
+        }
+        else { // insert
+<span class="fc" id="L84">            categoryMapper.insertSelective( category );</span>
+<span class="fc" id="L85">            categoryId = category.getCategoryId();</span>
+        }
+
+        /*
+         * 发送分类信息变更事件，让缓存强制更新，在微服务中强制更新缓存可以通过 mq 消息
+         */
+<span class="fc" id="L91">        applicationEventPublisher.publishEvent( new CategoryChangedEvent() );</span>
+<span class="fc" id="L92">        return UpsertCategoryResp.builder().categoryId( categoryId ).build();</span>
+    }
+
+    private void bizValidate( UpsertCategoryReq req ) {
+<span class="fc" id="L96">        final Long categoryId = req.getCategoryId(), parentId = req.getParentId();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if ( Objects.nonNull( categoryId ) ) {  // update</span>
+<span class="fc" id="L98">            Category category = categoryMapper.selectByPrimaryKey( categoryId );</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            if ( Objects.isNull( category ) ) {</span>
+<span class="fc" id="L100">                throw new BizException( String.format( &quot;Category[%d] not found.&quot;, categoryId ) );</span>
+            }
+        }
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if ( !ROOT_CATEGORY_ID.equals( parentId ) ) {</span>
+<span class="fc" id="L105">            Category parentCategory = categoryMapper.selectByPrimaryKey( parentId );</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            if ( Objects.isNull( parentCategory ) ) {</span>
+<span class="fc" id="L107">                throw new BizException( String.format( &quot;Parent category[%d] not found.&quot;, parentId ) );</span>
+            }
+        }
+<span class="fc" id="L110">    }</span>
+
+    @Override
+    public BaseResp deleteCategory( DeleteCategoryReq req ) {
+        // 可以切面
+<span class="fc" id="L115">        ValidationUtils.validate( req );</span>
+
+<span class="fc" id="L117">        final Long categoryId = req.getCategoryId();</span>
+
+        // 索引失效，删除当前的时候，也要删除子分类
+<span class="fc" id="L120">        int effectRows = categoryMapper.loginDelete( categoryId );</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if ( effectRows &lt; 1 ) {</span>
+<span class="fc" id="L122">            throw new BizException( String.format( &quot;Category[%d] not exists.&quot;, categoryId ) );</span>
+        }
+
+        /*
+         * 发送分类信息变更事件，让缓存强制更新，在微服务中强制更新缓存可以通过 mq 消息
+         */
+<span class="fc" id="L128">        applicationEventPublisher.publishEvent( new CategoryChangedEvent() );</span>
+<span class="fc" id="L129">        return BaseResp.success();</span>
+    }
+
+    private GetCategoryResp getAllCategories() {
+<span class="fc" id="L133">        GetCategoryResp resp = new GetCategoryResp();</span>
+<span class="fc" id="L134">        resp.setCategories( new ArrayList&lt;&gt;() );</span>
+        // 所有分类和子分类
+<span class="fc" id="L136">        List&lt;Category&gt; categories = CategoryCache.getCategories();</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if ( !CollectionUtils.isEmpty( categories ) ) {</span>
+            // parentId 是 0L 的时候，代表是 root 分类
+<span class="fc" id="L139">            List&lt;CategoryVo&gt; rootCategories = categories.stream()</span>
+<span class="fc" id="L140">                    .filter( c -&gt; c.getParentId().equals( ROOT_CATEGORY_ID ) ).map( this::categoryToCategoryVo ).collect( Collectors.toList() );</span>
+
+<span class="fc" id="L142">            resp.setCategories( rootCategories );</span>
+<span class="fc" id="L143">            fillChildrenCategories( rootCategories );</span>
+        }
+<span class="fc" id="L145">        return resp;</span>
+    }
+
+    private void fillChildrenCategories( List&lt;CategoryVo&gt; rootCategories ) {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">        if ( CollectionUtils.isEmpty( rootCategories ) ) {</span>
+<span class="nc" id="L150">            return;</span>
+        }
+        // 利用队列，进行全部分类的数据转换
+<span class="fc" id="L153">        Queue&lt;CategoryVo&gt; queue = new LinkedList&lt;&gt;( rootCategories );</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        while ( !queue.isEmpty() ) {</span>
+<span class="fc" id="L155">            CategoryVo cur = queue.poll();</span>
+<span class="fc" id="L156">            List&lt;Category&gt; childrenCategories = CategoryCache.getChildrenCategories( cur.getCategoryId() );</span>
+<span class="fc" id="L157">            childrenCategories.forEach( child -&gt; {</span>
+<span class="fc" id="L158">                CategoryVo categoryVo = categoryToCategoryVo( child );</span>
+<span class="fc" id="L159">                queue.add( categoryVo );</span>
+<span class="fc" id="L160">                cur.getChildren().add( categoryVo );</span>
+<span class="fc" id="L161">            } );</span>
+<span class="fc" id="L162">        }</span>
+<span class="fc" id="L163">    }</span>
+
+
+    private CategoryVo categoryToCategoryVo( Category category ) {
+<span class="fc" id="L167">        CategoryVo categoryVo = new CategoryVo();</span>
+<span class="fc" id="L168">        BeanCopy.copy( category, categoryVo );</span>
+<span class="fc" id="L169">        categoryVo.setCategoryName( category.getName() );</span>
+<span class="fc" id="L170">        categoryVo.setChildren( new ArrayList&lt;&gt;() );</span>
+<span class="fc" id="L171">        return categoryVo;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.interview.bcs.domains.book.mappers.BookMapper">
+  <resultMap id="BaseResultMap" type="org.interview.bcs.domains.book.entites.Book">
+    <id column="book_id" jdbcType="BIGINT" property="bookId" />
+    <result column="isbn" jdbcType="VARCHAR" property="isbn" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="author_id" jdbcType="BIGINT" property="authorId" />
+    <result column="publisher_id" jdbcType="BIGINT" property="publisherId" />
+    <result column="publication_year" jdbcType="INTEGER" property="publicationYear" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="language" jdbcType="VARCHAR" property="language" />
+    <result column="page_count" jdbcType="INTEGER" property="pageCount" />
+    <result column="cover_image" jdbcType="VARCHAR" property="coverImage" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="disable" jdbcType="BIT" property="disable" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.interview.bcs.domains.book.entites.Book">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    book_id, isbn, title, author_id, publisher_id, publication_year, category_id, `language`, 
+    page_count, cover_image, `status`, create_time, update_time, `disable`, remark
+  </sql>
+  <sql id="Blob_Column_List">
+    description
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from book
+    where book_id = #{bookId,jdbcType=BIGINT} and disable = false
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from book
+    where book_id = #{bookId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="book_id" keyProperty="bookId" parameterType="org.interview.bcs.domains.book.entites.Book" useGeneratedKeys="true">
+    insert into book (isbn, title, author_id, 
+      publisher_id, publication_year, category_id, 
+      `language`, page_count, cover_image, 
+      `status`, create_time, update_time, 
+      `disable`, remark, description
+      )
+    values (#{isbn,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{authorId,jdbcType=BIGINT}, 
+      #{publisherId,jdbcType=BIGINT}, #{publicationYear,jdbcType=INTEGER}, #{categoryId,jdbcType=INTEGER}, 
+      #{language,jdbcType=VARCHAR}, #{pageCount,jdbcType=INTEGER}, #{coverImage,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{disable,jdbcType=BIT}, #{remark,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="book_id" keyProperty="bookId" parameterType="org.interview.bcs.domains.book.entites.Book" useGeneratedKeys="true">
+    insert into book
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="isbn != null">
+        isbn,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="authorId != null">
+        author_id,
+      </if>
+      <if test="publisherId != null">
+        publisher_id,
+      </if>
+      <if test="publicationYear != null">
+        publication_year,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="language != null">
+        `language`,
+      </if>
+      <if test="pageCount != null">
+        page_count,
+      </if>
+      <if test="coverImage != null">
+        cover_image,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="disable != null">
+        `disable`,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="isbn != null">
+        #{isbn,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="authorId != null">
+        #{authorId,jdbcType=BIGINT},
+      </if>
+      <if test="publisherId != null">
+        #{publisherId,jdbcType=BIGINT},
+      </if>
+      <if test="publicationYear != null">
+        #{publicationYear,jdbcType=INTEGER},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="language != null">
+        #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="pageCount != null">
+        #{pageCount,jdbcType=INTEGER},
+      </if>
+      <if test="coverImage != null">
+        #{coverImage,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="disable != null">
+        #{disable,jdbcType=BIT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.interview.bcs.domains.book.entites.Book">
+    update book
+    <set>
+      <if test="isbn != null">
+        isbn = #{isbn,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="authorId != null">
+        author_id = #{authorId,jdbcType=BIGINT},
+      </if>
+      <if test="publisherId != null">
+        publisher_id = #{publisherId,jdbcType=BIGINT},
+      </if>
+      <if test="publicationYear != null">
+        publication_year = #{publicationYear,jdbcType=INTEGER},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="language != null">
+        `language` = #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="pageCount != null">
+        page_count = #{pageCount,jdbcType=INTEGER},
+      </if>
+      <if test="coverImage != null">
+        cover_image = #{coverImage,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="disable != null">
+        `disable` = #{disable,jdbcType=BIT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where book_id = #{bookId,jdbcType=BIGINT} and disable = false
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.interview.bcs.domains.book.entites.Book">
+    update book
+    set isbn = #{isbn,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      author_id = #{authorId,jdbcType=BIGINT},
+      publisher_id = #{publisherId,jdbcType=BIGINT},
+      publication_year = #{publicationYear,jdbcType=INTEGER},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      `language` = #{language,jdbcType=VARCHAR},
+      page_count = #{pageCount,jdbcType=INTEGER},
+      cover_image = #{coverImage,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      `disable` = #{disable,jdbcType=BIT},
+      remark = #{remark,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR}
+    where book_id = #{bookId,jdbcType=BIGINT} and disable = false
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.interview.bcs.domains.book.entites.Book">
+    update book
+    set isbn = #{isbn,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      author_id = #{authorId,jdbcType=BIGINT},
+      publisher_id = #{publisherId,jdbcType=BIGINT},
+      publication_year = #{publicationYear,jdbcType=INTEGER},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      `language` = #{language,jdbcType=VARCHAR},
+      page_count = #{pageCount,jdbcType=INTEGER},
+      cover_image = #{coverImage,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      `disable` = #{disable,jdbcType=BIT},
+      remark = #{remark,jdbcType=VARCHAR}
+    where book_id = #{bookId,jdbcType=BIGINT} and disable = false
+  </update>
+
+  <select id="select" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List"/>
+      from book
+      <where>
+          <if test="isbn != null">
+              and isbn = #{isbn}
+          </if>
+          <if test="title != null and title!=''">
+              and title LIKE CONCAT(#{title},'%')
+          </if>
+          <if test="authorIds != null and authorIds.size() > 0">
+              and author_id IN
+              <foreach collection="authorIds" item="authorId" separator="," open="(" close=")">
+                  #{authorId}
+              </foreach>
+          </if>
+          <if test="status != null">
+              and status = #{status}
+          </if>
+          <if test="true">
+              and disable = false
+          </if>
+      </where>
+  </select>
+
+  <select id="selectByIsbn" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM book
+    WHERE isbn = #{isbn} and disable = false
+  </select>
+
+</mapper>

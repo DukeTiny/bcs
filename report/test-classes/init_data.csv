@@ -1,0 +1,51 @@
+book_id,title,author,publication_year,category,price,rating
+1,The Silent Echo,Emily Johnson,2019,Fiction,12.99,4.5
+2,Quantum Mechanics Basics,David Chen,2015,Science,29.99,4.2
+3,Culinary Adventures,Sarah Miller,2020,Cooking,18.50,4.7
+4,The Last Kingdom,Robert Brown,2018,Historical Fiction,14.95,4.3
+5,Python for Beginners,Alan Turing,2021,Technology,24.99,4.8
+6,Gardening Through Seasons,Lisa Green,2017,Gardening,15.75,4.1
+7,Mystery of the Old House,Patricia Clark,2016,Mystery,10.99,4.0
+8,Financial Freedom,Michael Wong,2020,Finance,21.50,4.6
+9,The Art of Painting,Thomas Reed,2014,Art,27.99,4.4
+10,Space Exploration,Neil Cosmos,2019,Science,19.99,4.9
+11,Healthy Eating,Dr. Olivia Smith,2021,Health,16.25,4.7
+12,The Forgotten Tale,J.K. Rowling,2017,Fantasy,13.45,4.5
+13,Data Science Handbook,Mark Data,2022,Technology,34.99,4.8
+14,Ancient Civilizations,Prof. History,2015,History,22.50,4.3
+15,The Chef's Secret,Julia Childs,2018,Cooking,17.99,4.6
+16,Psychological Facts,Dr. Mind,2020,Psychology,20.75,4.2
+17,The Mountain Climber,Alex Peak,2019,Adventure,11.99,4.4
+18,Web Development 101,Tim Berners,2021,Technology,28.50,4.9
+19,Poetry Collection,Maya Angel,2016,Poetry,9.99,4.1
+20,The Investor's Guide,Warren Buffet,2017,Finance,25.99,4.7
+21,Robot Revolution,Isaac Asimov,2020,Science Fiction,14.50,4.5
+22,World War II Stories,John History,2019,History,18.99,4.6
+23,Baking Delights,Martha Stewart,2021,Cooking,19.75,4.8
+24,The Hidden Truth,Dan Brown,2018,Mystery,15.25,4.3
+25,Meditation Techniques,Dalai Lama,2017,Spirituality,12.99,4.7
+26,Children's Fairy Tales,Disney Group,2020,Children,10.50,4.9
+27,The Startup Playbook,Elon Musk,2021,Business,30.00,4.8
+28,African Safari,Ernest Hemingway,2016,Travel,13.75,4.2
+29,Algebra Fundamentals,Albert Math,2019,Education,16.99,4.0
+30,The Detective,Jane Christie,2017,Mystery,11.25,4.4
+31,Marine Biology,Jacques Cousteau,2020,Science,23.50,4.6
+32,French Cuisine,Julia Child,2018,Cooking,20.99,4.9
+33,The Poet's Voice,Robert Frost,2015,Poetry,8.99,4.3
+34,Stock Market Basics,Peter Lynch,2021,Finance,19.99,4.7
+35,Artificial Intelligence,Alan AI,2022,Technology,32.50,4.9
+36,Ancient Rome,Mary Historian,2017,History,17.25,4.5
+37,Yoga for Beginners,Stretch Guru,2020,Health,14.99,4.6
+38,The Lost Treasure,Clive Cussler,2019,Adventure,12.50,4.2
+39,Creative Writing,Stephen King,2016,Writing,15.99,4.8
+40,Vegan Recipes,Plant Based,2021,Cooking,18.75,4.7
+41,The Universe Explained,Carl Sagan,2018,Science,21.99,4.9
+42,Business Strategy,Sun Tzu,2015,Business,24.99,4.5
+43,The Gardener's Almanac,Green Thumb,2020,Gardening,16.50,4.4
+44,Mindfulness Practice,Jon Kabat-Zinn,2019,Psychology,13.25,4.7
+45,The Alchemist,Paulo Coelho,2017,Fiction,10.99,4.8
+46,Computer Networking,Tim Router,2021,Technology,27.99,4.6
+47,The History of Art,Giorgio Vasari,2016,Art,22.75,4.3
+48,Financial Planning,Suze Orman,2020,Finance,20.50,4.9
+49,The Hiking Guide,John Muir,2018,Travel,14.99,4.5
+50,Children's Science,Bill Nye,2021,Children,12.25,4.7

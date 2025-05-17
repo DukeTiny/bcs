@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">service</a> &gt; <a href="index.source.html" class="el_package">org.interview.bcs.domains.book.service.impl</a> &gt; <span class="el_source">BookServiceImpl.java</span></div><h1>BookServiceImpl.java</h1><pre class="source lang-java linenums">package org.interview.bcs.domains.book.service.impl;
+
+import org.interview.bcs.api.base.BaseResp;
+import org.interview.bcs.api.base.PageVo;
+import org.interview.bcs.api.constant.BookStatusEnum;
+import org.interview.bcs.api.domains.author.req.GetAuthorReq;
+import org.interview.bcs.api.domains.author.resp.GetAuthorResp;
+import org.interview.bcs.api.domains.author.vo.AuthorVo;
+import org.interview.bcs.api.domains.book.req.DeleteBookReq;
+import org.interview.bcs.api.domains.book.req.GetBookReq;
+import org.interview.bcs.api.domains.book.req.UpsertBookReq;
+import org.interview.bcs.api.domains.book.resp.GetBookResp;
+import org.interview.bcs.api.domains.book.resp.UpsertBookResp;
+import org.interview.bcs.api.domains.book.vo.BookVo;
+import org.interview.bcs.api.domains.category.req.GetCategoryReq;
+import org.interview.bcs.api.domains.category.resp.GetCategoryResp;
+import org.interview.bcs.common.BeanCopy;
+import org.interview.bcs.common.BizException;
+import org.interview.bcs.common.PageUtils;
+import org.interview.bcs.common.ValidationUtils;
+import org.interview.bcs.domains.author.service.AuthorService;
+import org.interview.bcs.domains.book.service.BookService;
+import org.interview.bcs.domains.book.entites.Book;
+import org.interview.bcs.domains.book.mappers.BookMapper;
+import org.interview.bcs.domains.category.service.CategoryService;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+/**
+ * @author: wanghu
+ * @since: 2025/5/15 10:00
+ */
+@Service
+<span class="fc" id="L40">public class BookServiceImpl implements BookService {</span>
+
+    @Resource
+    private BookMapper bookMapper;
+
+    @Resource
+    private AuthorService authorService;
+
+    @Resource
+    private CategoryService categoryService;
+
+    @Override
+    public GetBookResp getBooks( GetBookReq req ) {
+        // 切面
+<span class="fc" id="L54">        ValidationUtils.validate( req );</span>
+
+<span class="fc" id="L56">        GetBookResp resp = new GetBookResp();</span>
+
+<span class="fc" id="L58">        GetAuthorReq getAuthorReq = GetAuthorReq.builder().authorName( req.getAuthorName() ).build();</span>
+
+        // 这里可以封装成远程调用，方便后续服务拆分
+<span class="fc" id="L61">        GetAuthorResp authorsResp = authorService.getAuthors( getAuthorReq );</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if ( CollectionUtils.isEmpty( authorsResp.getAuthors() ) ) {</span>
+<span class="fc" id="L63">            return resp;</span>
+        }
+
+<span class="fc" id="L66">        List&lt;Long&gt; authorIds = authorsResp.getAuthors().stream().map( AuthorVo::getAuthorId ).collect( Collectors.toList() );</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        Integer status = req.getBookStatus() == null ? null : req.getBookStatus().getCode();</span>
+
+        // 时间问题，没有支持更多的参数查询
+<span class="fc" id="L70">        PageVo&lt;BookVo&gt; page = PageUtils.query( req,</span>
+<span class="fc" id="L71">                r -&gt; bookMapper.select( req.getIsbn(), req.getTitle(), authorIds, status ),</span>
+                this::bookToBookVo
+        );
+
+<span class="fc" id="L75">        resp.convert( page, resp::setBooks );</span>
+
+<span class="fc" id="L77">        return resp;</span>
+    }
+
+    @Override
+    public UpsertBookResp upsertBook( UpsertBookReq req ) {
+<span class="fc" id="L82">        ValidationUtils.validate( req );</span>
+
+        // 业务验证
+<span class="fc" id="L85">        bizValidate( req );</span>
+<span class="fc" id="L86">        Long bookId = req.getBookId();</span>
+
+<span class="fc" id="L88">        Book book = new Book();</span>
+<span class="fc" id="L89">        BeanCopy.copy( req, book );</span>
+<span class="fc" id="L90">        book.setStatus( req.getBookStatus().getCode() );</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        book.setDescription( StringUtils.hasText( req.getDescription() ) ? req.getDescription() : &quot;&quot; );</span>
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if ( Objects.isNull( bookId ) ) {</span>
+<span class="fc" id="L94">            bookMapper.insertSelective( book );</span>
+<span class="fc" id="L95">            bookId = book.getBookId();</span>
+        }
+        else {
+<span class="fc" id="L98">            bookMapper.updateByPrimaryKeySelective( book );</span>
+        }
+
+<span class="fc" id="L101">        return UpsertBookResp.builder().bookId( bookId ).build();</span>
+    }
+
+    @Override
+    public BaseResp deleteBook( DeleteBookReq req ) {
+        // 切面
+<span class="fc" id="L107">        ValidationUtils.validate( req );</span>
+<span class="fc" id="L108">        Long bookId = req.getBookId();</span>
+<span class="fc" id="L109">        Book book = new Book();</span>
+<span class="fc" id="L110">        book.setBookId( bookId );</span>
+<span class="fc" id="L111">        book.setDisable( true );</span>
+
+<span class="fc" id="L113">        int effectRows = bookMapper.updateByPrimaryKeySelective( book );</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if( effectRows &lt; 1 ){</span>
+<span class="fc" id="L115">            throw new BizException( &quot;Delete book failed,book not found.&quot; );</span>
+        }
+
+<span class="fc" id="L118">        return BaseResp.success();</span>
+    }
+
+    private void bizValidate( UpsertBookReq req ) {
+
+<span class="fc" id="L123">        final Long bookId = req.getBookId();</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if ( Objects.nonNull( bookId ) ) {</span>
+<span class="fc" id="L125">            Book book = bookMapper.selectByPrimaryKey( bookId );</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            if ( Objects.isNull( book ) ) {</span>
+<span class="fc" id="L127">                throw new BizException( &quot;Book not found.&quot; );</span>
+            }
+        }
+<span class="fc" id="L130">        final String isbn = req.getIsbn();</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if ( StringUtils.hasText( isbn ) ) {</span>
+<span class="fc" id="L132">            Book book = bookMapper.selectByIsbn( isbn );</span>
+<span class="fc bfc" id="L133" title="All 4 branches covered.">            if ( Objects.nonNull( book ) &amp;&amp; !book.getBookId().equals( bookId ) ) {</span>
+<span class="fc" id="L134">                throw new BizException( &quot;isbn already exists.&quot; );</span>
+            }
+        }
+
+<span class="fc" id="L138">        final Long authorId = req.getAuthorId();</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if ( Objects.nonNull( authorId ) ) {</span>
+            // 这里可以封装成远程调用，方便后续服务拆分
+<span class="fc" id="L141">            GetAuthorResp authorResp = authorService.getAuthors( GetAuthorReq.builder().authorId( authorId ).build() );</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">            if ( CollectionUtils.isEmpty( authorResp.getAuthors() ) ) {</span>
+<span class="fc" id="L143">                throw new BizException( &quot;Author not found!&quot; );</span>
+            }
+        }
+
+<span class="fc" id="L147">        final Long categoryId = req.getCategoryId();</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if ( Objects.nonNull( categoryId ) ) {</span>
+            // 这里可以封装成远程调用，方便后续服务拆分
+<span class="fc" id="L150">            GetCategoryResp categoryResp = categoryService.getCategories( GetCategoryReq.builder().categoryId( categoryId ).build() );</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">            if ( CollectionUtils.isEmpty( categoryResp.getCategories() ) ) {</span>
+<span class="fc" id="L152">                throw new BizException( &quot;Category not found!&quot; );</span>
+            }
+        }
+        // 时间原因，出版社管理未开发
+<span class="fc" id="L156">        Long publisherId = req.getPublisherId();</span>
+<span class="fc" id="L157">    }</span>
+
+
+    private BookVo bookToBookVo( Book book ) {
+<span class="fc" id="L161">        BookVo bookVo = new BookVo();</span>
+<span class="fc" id="L162">        BeanCopy.copy( book, bookVo );</span>
+<span class="fc" id="L163">        bookVo.setBookStatus( BookStatusEnum.of( book.getStatus() ) );</span>
+<span class="fc" id="L164">        bookVo.setCategoryId( book.getCategoryId() );</span>
+<span class="fc" id="L165">        return bookVo;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
