@@ -23,4 +23,5 @@
 - 观察者模式 `org.interview.bcs.domains.category.cache.CategoryListener`
 
 ##### 3.Write unit tests and integration tests. Aim for ≥ 80% code coverage
+> [查看测试报告](report/site/jacoco/index.html)
 - ![测试报告](pics/report.png)
